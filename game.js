@@ -8,7 +8,7 @@ function preload() {
     game.load.image('bullet', 'assets/bullets/bullet08.png');
     game.load.image('spikes', 'assets/spikes.png')
     game.load.image('invertedSpikes', 'assets/invertedSpikes.png')
-    game.load.spritesheet('dude', 'assets/metalslug.png', 37, 45, 18);
+    game.load.spritesheet('dude', 'assets/trumpface.png');
 
 }
 
@@ -71,7 +71,7 @@ function create() {
     ledge.body.immovable = true;
 
     // The player and its settings
-    player = game.add.sprite(0, game.world.height - 500, 'dude');
+    player = game.add.sprite(0, game.world.height - 550, 'dude');
 
     //  We need to enable physics on the player
     game.physics.arcade.enable(player);
@@ -82,8 +82,10 @@ function create() {
     player.body.collideWorldBounds = true;
 
     //  Our two animations, walking left and right.
+    /*
     player.animations.add('left', [0, 1, 2, 3], 10, true);
     player.animations.add('right', [5, 6, 7, 8], 10, true);
+    */
 
     //  Finally some stars to collect
     stars = game.add.group();
@@ -92,7 +94,7 @@ function create() {
     stars.enableBody = true;
 
     //  Here we'll create 12 of them evenly spaced apart
-    for (var i = 0; i < 50; i++)
+    for (var i = 0; i < 5; i++)
     {
         //  Create a star inside of the 'stars' group
         var star = stars.create(i * 70, 0, 'star');
@@ -184,7 +186,7 @@ function create() {
     weapon.bulletSpeedVariance = 150;
 
     //  Tell the Weapon to track the 'player' Sprite, offset by 14px horizontally, 0 vertically
-    weapon.trackSprite(player, 30, 15);
+    weapon.trackSprite(player, 10, 15);
 
     // Give weapons physical properties
     weapon.enableBody=true;
