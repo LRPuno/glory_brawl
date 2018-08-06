@@ -1,6 +1,5 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
-
 function preload() {
 
     game.load.image('sky', 'assets/sky2.png');
@@ -21,26 +20,23 @@ function preload() {
 
 }
 
-var player;
-var enemy;
-var platforms;
-var ledge;
-var cursors;
-
-
-var knife;
-var crowbar;
-var shield;
-var runFastX=false;
-
-
-var spikes;
-var roofSpikes;
-var fire;
-var fallingSpikes;
-
-
-
+var player, enemy, platforms, ledge, cursors, knife, crowbar, shield, spikes, roofSpikes, fire, fallingSpikes;
+var runFastX = false;
+// var player;
+// var enemy;
+// var platforms;
+// var ledge;
+// var cursors;
+//
+// var knife;
+// var crowbar;
+// var shield;
+// var runFastX=false;
+//
+// var spikes;
+// var roofSpikes;
+// var fire;
+// var fallingSpikes;
 
 function create() {
 
@@ -93,7 +89,7 @@ function create() {
 
 
 
-// This gets it movingplatform.body.velocity.setTo(200,200);// This makes the game world bounce-ableplatform.body.collideWorldBounds = true;// This sets the image bounce energy for the horizontal // and vertical vectors. "1" is 100% energy returnplatform.body.bounce.set(1); 
+// This gets it movingplatform.body.velocity.setTo(200,200);// This makes the game world bounce-ableplatform.body.collideWorldBounds = true;// This sets the image bounce energy for the horizontal // and vertical vectors. "1" is 100% energy returnplatform.body.bounce.set(1);
 
     //  We will enable physics for any object that is created in this group. Moving Ledges
     ledge = game.add.group();
@@ -152,7 +148,7 @@ function create() {
 
     player.animations.add('left', [0,1,2,3,4,5,6,7], 10, true);
     player.animations.add('right', [9,10,11,12,13,14,15], 10, true);
-    
+
 
 
     //Adding Fire
@@ -168,18 +164,18 @@ function create() {
 
     // Adding Ground Spikes (which are the invisible hitbox of the fire)
 
-    //  
+    //
     spikes = game.add.group();
 
-    //  
+    //
     spikes.enableBody = true;
 
     var spikesTwo = spikes.create(350, game.world.height -40, 'spikes');
 
-    //  
+    //
     spikesTwo.scale.setTo(.75, .25);
 
-    //  
+    //
     spikesTwo.body.immovable = true;
 
     spikes.visible=false;
@@ -189,36 +185,42 @@ function create() {
 
     roofSpikes=game.add.group();
     roofSpikes.enableBody=true;
-    var invertedSpikes=roofSpikes.create(0,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
+    // var invertedSpikes=roofSpikes.create(0,game.world.height-600,'invertedSpikes');
+    // invertedSpikes.scale.setTo(1,.25);
+    // invertedSpikes.body.immovable=true;
+    //
+    // invertedSpikes=roofSpikes.create(120,game.world.height-600,'invertedSpikes');
+    // invertedSpikes.scale.setTo(1,.25);
+    // invertedSpikes.body.immovable=true;
+    //
+    // invertedSpikes=roofSpikes.create(240,game.world.height-600,'invertedSpikes');
+    // invertedSpikes.scale.setTo(1,.25);
+    // invertedSpikes.body.immovable=true;
+    //
+    // invertedSpikes=roofSpikes.create(360,game.world.height-600,'invertedSpikes');
+    // invertedSpikes.scale.setTo(1,.25);
+    // invertedSpikes.body.immovable=true;
+    //
+    // invertedSpikes=roofSpikes.create(480,game.world.height-600,'invertedSpikes');
+    // invertedSpikes.scale.setTo(1,.25);
+    // invertedSpikes.body.immovable=true;
+    //
+    // invertedSpikes=roofSpikes.create(600,game.world.height-600,'invertedSpikes');
+    // invertedSpikes.scale.setTo(1,.25);
+    // invertedSpikes.body.immovable=true;
+    //
+    // invertedSpikes=roofSpikes.create(700,game.world.height-600,'invertedSpikes');
+    // invertedSpikes.scale.setTo(1,.25);
+    // invertedSpikes.body.immovable=true;
 
-    invertedSpikes=roofSpikes.create(120,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
+    var invertedSpikes;
+    var spikeHeight = game.world.height - 600;
 
-    invertedSpikes=roofSpikes.create(240,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
-
-    invertedSpikes=roofSpikes.create(360,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
-
-    invertedSpikes=roofSpikes.create(480,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
-
-    invertedSpikes=roofSpikes.create(600,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
-
-    invertedSpikes=roofSpikes.create(700,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
-
-
-
+    for(var i = 720; i >= 0; i -= 120) {
+      invertedSpikes=roofSpikes.create(i,spikeHeight,'invertedSpikes');
+      invertedSpikes.scale.setTo(1, 0.25);
+      invertedSpikes.body.immovable = true;
+    }
 
     //  Our controls.
     cursors = game.input.keyboard.createCursorKeys();
@@ -226,13 +228,12 @@ function create() {
     // Weapon Creation
     //  Creates 30 bullets, using the 'bullet' graphic
 
-        
         weapon = game.add.weapon(200, 'bullet');
 
         game.physics.arcade.enable(weapon);
 
         //  The bullet will be automatically killed when it leaves the world bounds
-        
+
         //weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
         weapon.bulletKillType = Phaser.Weapon.KILL_DISTANCE;
         weapon.bulletKillDistance = 20;
@@ -261,15 +262,7 @@ function create() {
 
         fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 
-
-       
- 
-
     // Trump Sprite
-
-    
-
-  
     enemy=game.add.sprite(200,270,'enemy');
     game.physics.arcade.enable(enemy);
     enemy.enableBody = true;
@@ -279,13 +272,9 @@ function create() {
     enemy.body.collideWorldBounds = true;
     enemy.body.velocity.x = 200;
 
-    
-
-
- 
     //To randomly generate items.
     function itemGenerator() {
-        
+
         //Subject to change
         knife = game.add.group();
         crowbar = game.add.group();
@@ -304,7 +293,7 @@ function create() {
         for (var i = 0; i < 3; i++)
         {
             var randomNumberX=Math.floor((Math.random() * 3) + 1);
-            
+
             if (randomNumberX===1) {
                 //Random Number
                 var randomNumber=Math.floor((Math.random() * 700) + 1);
@@ -323,10 +312,10 @@ function create() {
                 var randomNumber=Math.floor((Math.random() * 700) + 1);
                 //  Create a star inside of the 'stars' group
                 var knives = knife.create(randomNumber, game.world.height-600, 'knife');
-        
+
                 //  Let gravity do its thing
                 knives.body.gravity.y = 300;
-        
+
                 //  This just gives each star a slightly random bounce value
                 knives.body.bounce.y = 0.7 + Math.random() * 0.2;
             }
@@ -336,10 +325,10 @@ function create() {
                 var randomNumber=Math.floor((Math.random() * 700) + 1);
                 //  Create a star inside of the 'stars' group
                 var crowbars = crowbar.create(randomNumber, game.world.height-600, 'crowbar');
-        
+
                 //  Let gravity do its thing
                 crowbars.body.gravity.y = 300;
-        
+
                 //  This just gives each knife a slightly random bounce value
                 crowbars.body.bounce.y = 0.7 + Math.random() * 0.2;
             }
@@ -366,10 +355,7 @@ function create() {
   setInterval(itemGenerator,10000);
   setInterval(spikesFalling,7000);
 
-    
 }
-
-
 
 function update() {
 
@@ -393,16 +379,26 @@ function update() {
     //  Checks to see if overlap in assets.
     //game.physics.arcade.overlap(weapon.bullets, platforms, bulletHitPlatform, null, this);
     game.physics.arcade.overlap(weapon.bullets, knife, killItemRange, null, this);
-    game.physics.arcade.overlap(player, spikes, playerDeath, null, this);
-    game.physics.arcade.overlap(player, roofSpikes, playerDeathTwo, null, this);
-    game.physics.arcade.overlap(player,fallingSpikes,fallingSpikeDeath,null, this);
+    game.physics.arcade.overlap(player, spikes, deathOne, null, this);
+    game.physics.arcade.overlap(player, roofSpikes, deathOne, null, this);
+    game.physics.arcade.overlap(player,fallingSpikes,deathOne,null, this);
     game.physics.arcade.overlap(player,knife, runFaster,null, this);
-    game.physics.arcade.overlap(spikes, knife, killKnife, null, this);
-    game.physics.arcade.overlap(spikes, crowbar, killCrowbar, null, this);
-    game.physics.arcade.overlap(spikes, shield, killShield, null, this);
-    game.physics.arcade.overlap(fallingSpikes, ledge, fallingSpikeDeathTwo, null, this);
-    game.physics.arcade.overlap(fallingSpikes, platforms, fallingSpikeDeathThree, null, this);
+    game.physics.arcade.overlap(spikes, knife, deathTwo, null, this);
+    game.physics.arcade.overlap(spikes, crowbar, deathTwo, null, this);
+    game.physics.arcade.overlap(spikes, shield, deathTwo, null, this);
+    game.physics.arcade.overlap(fallingSpikes, ledge, deathOne, null, this);
+    game.physics.arcade.overlap(fallingSpikes, platforms, deathOne, null, this);
 
+    // game.physics.arcade.overlap(weapon.bullets, knife, killItemRange, null, this);
+    // game.physics.arcade.overlap(player, spikes, playerDeath, null, this);
+    // game.physics.arcade.overlap(player, roofSpikes, playerDeathTwo, null, this);
+    // game.physics.arcade.overlap(player,fallingSpikes,fallingSpikeDeath,null, this);
+    // game.physics.arcade.overlap(player,knife, runFaster,null, this);
+    // game.physics.arcade.overlap(spikes, knife, killKnife, null, this);
+    // game.physics.arcade.overlap(spikes, crowbar, killCrowbar, null, this);
+    // game.physics.arcade.overlap(spikes, shield, killShield, null, this);
+    // game.physics.arcade.overlap(fallingSpikes, ledge, fallingSpikeDeathTwo, null, this);
+    // game.physics.arcade.overlap(fallingSpikes, platforms, fallingSpikeDeathThree, null, this);
 
     //  Reset the players velocity (movement)
     player.body.velocity.x = 0;
@@ -424,7 +420,7 @@ function update() {
             weapon.fireAngle=-180;
         }
 
-        
+
     }
     else if (cursors.right.isDown)
     {
@@ -452,7 +448,7 @@ function update() {
         player.frame = 8;
 
     }
-    
+
     //  Allow the player to jump if they are touching the ground.
     if (cursors.up.isDown && player.body.touching.down && (hitPlatform || hitLedge))
     {
@@ -460,10 +456,10 @@ function update() {
 
     }
 
-    
+
     if (fireButton.isDown)
     {
-        
+
         if (cursors.left.isDown)
         {
             player.body.velocity.x = -90;
@@ -471,7 +467,7 @@ function update() {
             weapon.fire();
             weapon.fireAngle=-180;
 
-            
+
         }
         else if (cursors.right.isDown)
         {
@@ -482,27 +478,38 @@ function update() {
 
         }
     }
-    
-    
-
 
 }
 
-
-
-//Knife, Crowbar, Shield Functions
-function killKnife(spikes,knife) {
-    knife.kill();
+// Platform Movement
+function platformMover (player,ledge) {
+    if (ledge.body.touching.left) {
+        ledge.body.velocity.x = 450;
+    }
+    else if (ledge.body.touching.right) {
+        ledge.body.velocity.x = -450;
+    }
+    else if (ledge.body.touching.up) {
+        ledge.body.velocity.y = -50;
+    }
+    else if (ledge.body.touching.down) {
+        ledge.body.velocity.y=-300;
+    }
 }
 
-function killCrowbar (spikes,crowbar) {
-    crowbar.kill();
-}
-
-function killShield (spikes,shield) {
-    shield.kill();
-}
-
+// //Knife, Crowbar, Shield Functions
+// function killKnife(spikes,knife) {
+//     knife.kill();
+// }
+//
+// function killCrowbar (spikes,crowbar) {
+//     crowbar.kill();
+// }
+//
+// function killShield (spikes,shield) {
+//     shield.kill();
+// }
+//
 //Player Weapon Handlers
 function killItemRange (weapon,knife) {
     knife.kill();
@@ -513,49 +520,34 @@ function runFaster (player,knife) {
     knife.kill();
 }
 
-// Platform Movement
+// function playerDeath (player,spikes) {
+//     player.kill();
+// }
+//
+// function playerDeathTwo (player,roofSpikes) {
+//     player.kill();
+// }
+//
+// //Function for Falling Spikes
+//
+// function fallingSpikeDeath (player,fallingSpikes) {
+//     player.kill();
+// }
+//
+// function fallingSpikeDeathTwo (fallingSpikes,ledge) {
+//     fallingSpikes.kill();
+// }
+//
+// function fallingSpikeDeathThree (fallingSpikes,platforms) {
+//     fallingSpikes.kill();
+// }
 
-function platformMover (player,ledge) {
-    if (ledge.body.touching.left) {
-        ledge.body.velocity.x = 450;
-    }
-    else if (ledge.body.touching.right) {
-        ledge.body.velocity.x = -450;
-    }
-    
-    else if (ledge.body.touching.up) {
-        ledge.body.velocity.y = -50;
-    }
-
-    
-    else if (ledge.body.touching.down) {
-        ledge.body.velocity.y=-300;
-    }
-    
+//first parameter dies, second one is the cause (ex: fallingSpike hits Ledge)
+function deathOne(victim, killer) {
+  victim.kill();
 }
 
-
-function playerDeath (player,spikes) {
-    player.kill();
+//second parameter dies, first parameter is the cause (ex: fallingSpikes hits items (shield etc))
+function deathTwo(killer, victim) {
+  victim.kill();
 }
-
-function playerDeathTwo (player,roofSpikes) {
-    player.kill();
-}
-
-//Function for Falling Spikes
-
-function fallingSpikeDeath (player,fallingSpikes) {
-    player.kill();
-}
-
-function fallingSpikeDeathTwo (fallingSpikes,ledge) {
-    fallingSpikes.kill();
-}
-
-function fallingSpikeDeathThree (fallingSpikes,platforms) {
-    fallingSpikes.kill();
-}
-
-
-
