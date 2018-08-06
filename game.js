@@ -1,5 +1,6 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
+
 function preload() {
 
     game.load.image('sky', 'assets/sky2.gif');
@@ -13,22 +14,25 @@ function preload() {
     game.load.image('crowbar','assets/crowbar.png');
     game.load.image('shield','assets/shield.png');
     game.load.image('fallingSpike',"assets/newSpikes.png");
-    game.load.spritesheet('dude', 'assets/dude.png',32,48);
+    game.load.spritesheet('dude', 'assets/orange.png',47,50,17);
+    game.load.spritesheet('secondDude','assets/white.png',47,50,17);
     game.load.spritesheet('fire','assets/spritefire.png',150,500);
     game.load.spritesheet('enemy','assets/trumpface.png');
-
 
 }
 
 var player;
+var playerX;
 var enemy;
 var platforms;
 var cursors;
 
-var weapons;
+
 var knife;
 var crowbar;
 var shield;
+var playerBullets;
+
 
 var spikes;
 var roofSpikes;
@@ -42,6 +46,9 @@ function create() {
 
     //  We're going to be using physics, so enable the Arcade Physics system
     game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    //Scales our Game
+    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
     //  A simple background for our game
     game.add.sprite(0, 0, 'sky');
@@ -115,8 +122,26 @@ function create() {
 
     //  Our two animations, walking left and right.
 
-    player.animations.add('left', [0, 1, 2, 3], 10, true);
-    player.animations.add('right', [5, 6, 7, 8], 10, true);
+    player.animations.add('left', [0,1,2,3,4,5,6,7], 10, true);
+    player.animations.add('right', [9,10,11,12,13,14,15], 10, true);
+
+    // Player Two
+
+    playerX=game.add.sprite(500,game.world.height-140,'secondDude');
+    
+    game.physics.arcade.enable(playerX);
+
+    //  Player physics properties. Give the little guy a slight bounce.
+    playerX.body.bounce.y = 0;
+    playerX.body.gravity.y = 200;
+    playerX.body.collideWorldBounds = true;
+
+    //  Our two animations, walking left and right.
+
+    playerX.animations.add('left', [0,1,2,3,4,5,6], 10, true);
+    playerX.animations.add('right', [8,9,10,11,12,13,14,15], 10, true);
+
+
 
 
     //Adding Fire
@@ -128,6 +153,20 @@ function create() {
     newFire.animations.add('move');
     newFire.animations.play('move',4,true);
     newFire.body.immovable=true;
+
+    /*
+    newFire=fire.create(270,340,'fire');
+    newFire.body.setSize(0,100);
+    newFire.animations.add('move');
+    newFire.animations.play('move',4,true);
+    newFire.body.immovable=true;
+
+    newFire=fire.create(360,340,'fire');
+    newFire.body.setSize(0,100);
+    newFire.animations.add('move');
+    newFire.animations.play('move',4,true);
+    newFire.body.immovable=true;
+    */
 
   
 
@@ -205,38 +244,47 @@ function create() {
 
     // Weapon Creation
     //  Creates 30 bullets, using the 'bullet' graphic
-    weapon = game.add.weapon(200, 'bullet');
 
-    game.physics.arcade.enable(weapon);
 
-    //  The bullet will be automatically killed when it leaves the world bounds
-    weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+        weapon = game.add.weapon(200, 'bullet');
 
-    //  Because our bullet is drawn facing up, we need to offset its rotation:
-    weapon.bulletAngleOffset = 0;
+        game.physics.arcade.enable(weapon);
 
-    //
-    weapon.fireAngle=0;
+        //  The bullet will be automatically killed when it leaves the world bounds
+        
+        //weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+        weapon.bulletKillType = Phaser.Weapon.KILL_DISTANCE;
+        weapon.bulletKillDistance = 100;
 
-    //  The speed at which the bullet is fired
-    weapon.bulletSpeed = 400;
+        //  Because our bullet is drawn facing up, we need to offset its rotation:
+        weapon.bulletAngleOffset = 0;
 
-    //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
-    weapon.fireRate = 10;
+        //
+        weapon.fireAngle=0;
 
-    //  Add a variance to the bullet speed by +- this value
-    weapon.bulletSpeedVariance = 150;
+        //  The speed at which the bullet is fired
+        weapon.bulletSpeed = 400;
 
-    //  Tell the Weapon to track the 'player' Sprite, offset by 14px horizontally, 0 vertically
-    weapon.trackSprite(player, 10, 15);
+        //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
+        weapon.fireRate = 10;
 
-    // Give weapons physical properties
-    weapon.enableBody=true;
-    weapon.physicsBodyType= Phaser.Physics.ARCADE;
+        //  Add a variance to the bullet speed by +- this value
+        weapon.bulletSpeedVariance = 150;
 
-    fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+        //  Tell the Weapon to track the 'player' Sprite, offset by 14px horizontally, 0 vertically
+        weapon.trackSprite(player, 30, 15);
 
-    // Enemy
+        // Give weapons physical properties
+        weapon.enableBody=true;
+        weapon.physicsBodyType= Phaser.Physics.ARCADE;
+
+        fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+
+
+
+ 
+
+    // Trump Sprite
 
   
     enemy=game.add.sprite(200,270,'enemy');
@@ -246,7 +294,7 @@ function create() {
     enemy.body.bounce.x = 1;
     enemy.body.gravity.y=20;
     enemy.body.collideWorldBounds = true;
-    enemy.body.velocity.x = 150;
+    enemy.body.velocity.x = 200;
 
 
   //  Items to generate at the start of the game.
@@ -377,15 +425,15 @@ function create() {
     fallingSpikes.collideWorldBounds=true;
 
     for (var i=0;i<3;i++) {
-    var randomNumber=Math.floor((Math.random() * 700) + 1);
-    //  Create a star inside of the 'stars' group
-    var spikeFall = fallingSpikes.create(randomNumber, game.world.height-600, 'fallingSpike');
+        var randomNumber=Math.floor((Math.random() * 700) + 1);
+        //  Create a star inside of the 'stars' group
+        var spikeFall = fallingSpikes.create(randomNumber, game.world.height-600, 'fallingSpike');
 
-    //  Let gravity do its thing
-    spikeFall.body.gravity.y = 300;
+        //  Let gravity do its thing
+        spikeFall.body.gravity.y = 300;
 
-    //  This just gives each spikeFall a slightly random bounce value
-    spikeFall.body.bounce.y = 0.7 + Math.random() * 0.2;
+        //  This just gives each spikeFall a slightly random bounce value
+        spikeFall.body.bounce.y = 0.7 + Math.random() * 0.2;
 
     }
   }
@@ -394,13 +442,17 @@ function create() {
   setInterval(itemGenerator,10000);
   setInterval(spikesFalling,7000);
 
+
     
 }
+
+
 
 function update() {
 
     //  Collide the player and the stars with the platforms
     var hitPlatform = game.physics.arcade.collide(player, platforms);
+    game.physics.arcade.collide(playerX,platforms);
     game.physics.arcade.collide(knife, platforms);
     game.physics.arcade.collide(crowbar, platforms);
     game.physics.arcade.collide(shield, platforms);
@@ -408,10 +460,10 @@ function update() {
     game.physics.arcade.collide(enemy,spikes);
     game.physics.arcade.collide(platforms,spikes);
 
-    //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
-    //game.physics.arcade.overlap(weapon.bullets, stars, killStar, null, this);
+    //  Checks to see if overlap in assets.
     game.physics.arcade.overlap(weapon.bullets, platforms, bulletHitPlatform, null, this);
     game.physics.arcade.overlap(player, spikes, playerDeath, null, this);
+
     game.physics.arcade.overlap(player, roofSpikes, playerDeathTwo, null, this);
     game.physics.arcade.overlap(player,fallingSpikes,fallingSpikeDeath,null, this);
     game.physics.arcade.overlap(spikes, knife, killKnife, null, this);
@@ -422,6 +474,7 @@ function update() {
 
     //  Reset the players velocity (movement)
     player.body.velocity.x = 0;
+    playerX.body.velocity.x=0;
 
     if (cursors.left.isDown)
     {
@@ -429,6 +482,13 @@ function update() {
         player.body.velocity.x = -200;
 
         player.animations.play('left');
+
+        weapon.fireAngle=-180;
+
+        //Player Two
+        playerX.body.velocity.x = -200;
+
+        playerX.animations.play('left');
 
         weapon.fireAngle=-180;
         
@@ -441,13 +501,24 @@ function update() {
         player.animations.play('right');
 
         weapon.fireAngle=0;
+
+        //Player Two
+        playerX.body.velocity.x = 200;
+
+        playerX.animations.play('right');
+
+        weapon.fireAngle=0;
     }
     else
     {
         //  Stand still
         player.animations.stop();
 
-        player.frame = 4;
+        player.frame = 8;
+
+        // Stand Still for Player Two
+        playerX.animations.stop();
+        playerX.frame= 7;
     }
     
     //  Allow the player to jump if they are touching the ground.
@@ -455,6 +526,7 @@ function update() {
     {
         weapon.fireAngle=-90;
         player.body.velocity.y = -300;
+
     }
 
     if (fireButton.isDown)
@@ -480,25 +552,37 @@ function killShield (spikes,shield) {
     shield.kill();
 }
 
+//Player Weapon Handlers
+
+
+
+
 // Player Death Handlers
 function bulletHitPlatform (weapon,platforms) {
    weapon.kill();
 }
 
 function playerDeath (player,spikes) {
+    player.frame=16
     player.kill();
 }
 
 function playerDeathTwo (player,roofSpikes) {
+    player.frame=16
     player.kill();
 }
 
 //Function for Falling Spikes
 
 function fallingSpikeDeath (player,fallingSpikes) {
+    player.frame=16
     player.kill();
 }
 
 function fallingSpikeDeathTwo (fallingSpikes,platforms) {
     fallingSpikes.kill();
 }
+
+
+
+
