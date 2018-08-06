@@ -7,11 +7,11 @@ function preload() {
     game.load.image('ground', 'assets/platform2.png');
     game.load.image('testGround','assets/platformX.png');
     game.load.image('star', 'assets/diamond.png');
-    game.load.image('bullet', 'assets/bullets/bullet08.png');
+    game.load.image('bullet', 'assets/bullets/bullet206.png');
     game.load.image('spikes', 'assets/spikes.png');
     game.load.image('invertedSpikes', 'assets/invertedSpikes.png')
-    game.load.image('knife','assets/trueKnife.png');
-    game.load.image('crowbar','assets/crowbar.png');
+    game.load.image('stun','assets/trueKnife.png');
+    game.load.image('wing','assets/wings.png');
     game.load.image('shield','assets/shield.png');
     game.load.image('fallingSpike',"assets/newSpikes.png");
     game.load.spritesheet('dude', 'assets/orangefight.png',47,50,19);
@@ -28,10 +28,12 @@ var ledge;
 var cursors;
 
 
-var knife;
-var crowbar;
+var stun;
+var wing;
 var shield;
 var runFastX=false;
+var jumpHigherX=false;
+var stunGunWeapon=false;
 
 
 var spikes;
@@ -235,7 +237,7 @@ function create() {
         
         //weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
         weapon.bulletKillType = Phaser.Weapon.KILL_DISTANCE;
-        weapon.bulletKillDistance = 20;
+        weapon.bulletKillDistance = 27;
 
         //  Because our bullet is drawn facing up, we need to offset its rotation:
         weapon.bulletAngleOffset = 0;
@@ -244,16 +246,15 @@ function create() {
         weapon.fireAngle=0;
 
         //  The speed at which the bullet is fired
-        weapon.bulletSpeed = 100;
+        weapon.bulletSpeed = 800;
 
         //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
-        weapon.fireRate = 10;
+        weapon.fireRate = 0;
 
-        //  Add a variance to the bullet speed by +- this value
-        weapon.bulletSpeedVariance = 150;
 
         //  Tell the Weapon to track the 'player' Sprite, offset by 14px horizontally, 0 vertically
-        weapon.trackSprite(player, 30, 20);
+        weapon.trackSprite(player, 25, 25);
+
 
         // Give weapons physical properties
         weapon.enableBody=true;
@@ -261,6 +262,7 @@ function create() {
 
         fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
 
+        weapon.bullets.visible=false;
 
        
  
@@ -287,17 +289,17 @@ function create() {
     function itemGenerator() {
         
         //Subject to change
-        knife = game.add.group();
-        crowbar = game.add.group();
+        stun = game.add.group();
+        wing = game.add.group();
         shield = game.add.group();
 
         //  We will enable physics for any star that is created in this group
-        knife.enableBody = true;
-        crowbar.enableBody = true;
+        stun.enableBody = true;
+        wing.enableBody = true;
         shield.enableBody = true;
 
-        knife.collideWorldBounds=true;
-        crowbar.collideWorldBounds=true;
+        stun.collideWorldBounds=true;
+        wing.collideWorldBounds=true;
         shield.collideWorldBounds=true;
 
         //  Here we'll create 3 of them at random.
@@ -322,26 +324,26 @@ function create() {
                 //Random Number
                 var randomNumber=Math.floor((Math.random() * 700) + 1);
                 //  Create a star inside of the 'stars' group
-                var knives = knife.create(randomNumber, game.world.height-600, 'knife');
+                var stunGun = stun.create(randomNumber, game.world.height-600, 'stun');
         
                 //  Let gravity do its thing
-                knives.body.gravity.y = 300;
+                stunGun.body.gravity.y = 300;
         
                 //  This just gives each star a slightly random bounce value
-                knives.body.bounce.y = 0.7 + Math.random() * 0.2;
+                stunGun.body.bounce.y = 0.7 + Math.random() * 0.2;
             }
 
             if (randomNumberX===3) {
                 //Random Number
                 var randomNumber=Math.floor((Math.random() * 700) + 1);
                 //  Create a star inside of the 'stars' group
-                var crowbars = crowbar.create(randomNumber, game.world.height-600, 'crowbar');
+                var wings = wing.create(randomNumber, game.world.height-600, 'wing');
         
                 //  Let gravity do its thing
-                crowbars.body.gravity.y = 300;
+                wings.body.gravity.y = 300;
         
-                //  This just gives each knife a slightly random bounce value
-                crowbars.body.bounce.y = 0.7 + Math.random() * 0.2;
+                //  This just gives each stun a slightly random bounce value
+                wings.body.bounce.y = 0.7 + Math.random() * 0.2;
             }
         }
     }
@@ -376,29 +378,31 @@ function update() {
     //  Collide the player and the stars with the platforms
     var hitPlatform = game.physics.arcade.collide(player, platforms);
     var hitLedge=game.physics.arcade.collide(player,ledge, platformMover);
-    game.physics.arcade.collide(knife, ledge);
+    game.physics.arcade.collide(stun, ledge);
     //game.physics.arcade.collide(platforms, platforms);
-    game.physics.arcade.collide(crowbar, ledge);
+    game.physics.arcade.collide(wing, ledge);
     game.physics.arcade.collide(shield, ledge);
     game.physics.arcade.collide(enemy,ledge);
     game.physics.arcade.collide(enemy,spikes);
     game.physics.arcade.collide(ledge,spikes);
     game.physics.arcade.collide(platforms,spikes)
-    game.physics.arcade.collide(knife, platforms);
+    game.physics.arcade.collide(stun, platforms);
     //game.physics.arcade.collide(platforms, platforms);
-    game.physics.arcade.collide(crowbar, platforms);
+    game.physics.arcade.collide(wing, platforms);
     game.physics.arcade.collide(shield, platforms);
     game.physics.arcade.collide(enemy,platforms);
 
     //  Checks to see if overlap in assets.
     //game.physics.arcade.overlap(weapon.bullets, platforms, bulletHitPlatform, null, this);
-    game.physics.arcade.overlap(weapon.bullets, knife, killItemRange, null, this);
+    game.physics.arcade.overlap(weapon.bullets, stun, killItemRange, null, this);
     game.physics.arcade.overlap(player, spikes, playerDeath, null, this);
     game.physics.arcade.overlap(player, roofSpikes, playerDeathTwo, null, this);
     game.physics.arcade.overlap(player,fallingSpikes,fallingSpikeDeath,null, this);
-    game.physics.arcade.overlap(player,knife, runFaster,null, this);
-    game.physics.arcade.overlap(spikes, knife, killKnife, null, this);
-    game.physics.arcade.overlap(spikes, crowbar, killCrowbar, null, this);
+    game.physics.arcade.overlap(player,shield, runFaster,null, this);
+    game.physics.arcade.overlap(player,wing,jumpHigher,null,this);
+    game.physics.arcade.overlap(player,stun,extendedWeapon,null,this);
+    game.physics.arcade.overlap(spikes, stun, killstun, null, this);
+    game.physics.arcade.overlap(spikes, wing, killwing, null, this);
     game.physics.arcade.overlap(spikes, shield, killShield, null, this);
     game.physics.arcade.overlap(fallingSpikes, ledge, fallingSpikeDeathTwo, null, this);
     game.physics.arcade.overlap(fallingSpikes, platforms, fallingSpikeDeathThree, null, this);
@@ -417,7 +421,7 @@ function update() {
         weapon.fireAngle=-180;
 
         if (runFastX) {
-            player.body.velocity.x = -500;
+            player.body.velocity.x = -400;
 
             player.animations.play('left');
 
@@ -436,7 +440,7 @@ function update() {
         weapon.fireAngle=0;
 
         if (runFastX) {
-            player.body.velocity.x = 500;
+            player.body.velocity.x = 400;
 
             player.animations.play('right');
 
@@ -456,7 +460,10 @@ function update() {
     //  Allow the player to jump if they are touching the ground.
     if (cursors.up.isDown && player.body.touching.down && (hitPlatform || hitLedge))
     {
-        player.body.velocity.y = -300;
+        player.body.velocity.y = -200;
+        if (jumpHigherX) {
+            player.body.velocity.y = -400;
+        }
 
     }
 
@@ -468,8 +475,8 @@ function update() {
         {
             player.body.velocity.x = -90;
             player.frame=17;
-            weapon.fire();
             weapon.fireAngle=-180;
+            weapon.fire();
 
             
         }
@@ -477,9 +484,34 @@ function update() {
         {
             player.body.velocity.x = 90;
             player.frame=18;
-            weapon.fire();
             weapon.fireAngle=0;
+            weapon.fire();
 
+        }
+
+        if (stunGunWeapon) {
+            if (cursors.left.isDown)
+        {
+            player.body.velocity.x = -90;
+            player.frame=17;
+            weapon.fireAngle=-180;
+            weapon.bulletKillDistance = 40;
+            weapon.fire();
+
+            
+
+            
+        }
+        else if (cursors.right.isDown)
+        {
+            player.body.velocity.x = 90;
+            player.frame=18;
+            weapon.fireAngle=0;
+            weapon.bulletKillDistance = 40;
+            weapon.bullets.visible=true;
+            weapon.fire();
+
+        }
         }
     }
     
@@ -490,13 +522,13 @@ function update() {
 
 
 
-//Knife, Crowbar, Shield Functions
-function killKnife(spikes,knife) {
-    knife.kill();
+//stun, wing, Shield Functions
+function killstun(spikes,stun) {
+    stun.kill();
 }
 
-function killCrowbar (spikes,crowbar) {
-    crowbar.kill();
+function killwing (spikes,wing) {
+    wing.kill();
 }
 
 function killShield (spikes,shield) {
@@ -504,13 +536,23 @@ function killShield (spikes,shield) {
 }
 
 //Player Weapon Handlers
-function killItemRange (weapon,knife) {
-    knife.kill();
+function killItemRange (weapon,stun) {
+    stun.kill();
 }
 
-function runFaster (player,knife) {
+function runFaster (player,shield) {
     runFastX=true;
-    knife.kill();
+    shield.kill();
+}
+
+function jumpHigher (player,wing) {
+    jumpHigherX=true;
+    wing.kill();
+}
+
+function extendedWeapon (player,stun) {
+    stunGunWeapon=true;
+    stun.kill();
 }
 
 // Platform Movement
