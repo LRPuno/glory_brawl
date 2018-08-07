@@ -6,10 +6,11 @@ function preload() {
     game.load.image('sky', 'assets/sky2.png');
     game.load.image('ground', 'assets/platform2.png');
     game.load.image('testGround','assets/platformX.png');
-    game.load.image('star', 'assets/diamond.png');
     game.load.image('bullet', 'assets/bullets/bullet206.png');
     game.load.image('spikes', 'assets/spikes.png');
     game.load.image('invertedSpikes', 'assets/invertedSpikesTrue.png')
+    game.load.image('fallingSpike',"assets/newSpikes.png");
+    game.load.image('invisibleSpikes','assets/invisibleFloorSpikes.png');
     game.load.image('stun','assets/trueKnife.png');
     game.load.image('wing','assets/wings.png');
     game.load.image('shield','assets/shield.png');
@@ -80,9 +81,11 @@ function create() {
     //  This stops it from falling away when you jump on it
     groundTwo.body.immovable = true;
 
-    var groundThree = platforms.create(200, 350, 'ground');
-    groundThree.body.immovable = true; //Only Immovable groundThree ATM
-    groundThree.body.velocity.setTo(50,50);
+    var randomNumber=Math.floor((Math.random() * 798) + 1);
+    var randomNumber2=Math.floor((Math.random() * 500) + 1);
+    var groundThree = platforms.create(randomNumber, randomNumber2, 'ground');
+    groundThree.body.immovable = true; 
+    groundThree.body.velocity.setTo(70,60);
     groundThree.body.collideWorldBounds=true;
     groundThree.body.bounce.set(.5);
 
@@ -109,8 +112,8 @@ function create() {
         var randomNumber=Math.floor((Math.random() * 798) + 1);
         var randomNumber2=Math.floor((Math.random() * 500) + 1);
         if (i<4) {
-        var randomNumber3=Math.floor((Math.random() * 60) + 1);
-        var randomNumber4=Math.floor((Math.random() * 60) + 1);
+            var randomNumber3=Math.floor((Math.random() * 60) + 1);
+            var randomNumber4=Math.floor((Math.random() * 60) + 1);
         }
         else if (i>=4) {
             var randomNumber3=Math.floor((Math.random() * 60) - 120);
@@ -127,7 +130,7 @@ function create() {
     cursors = game.input.keyboard.createCursorKeys();
 
     // The player and its settings
-    player = game.add.sprite(0, game.world.height - 140, 'dude');
+    player = game.add.sprite(0, game.world.height - 80, 'dude');
 
     //  We need to enable physics on the player
     game.physics.arcade.enable(player);
@@ -163,14 +166,24 @@ function create() {
     //  
     spikes.enableBody = true;
 
+    //Coded in spikes for the pit
     var spikesTwo = spikes.create(350, game.world.height -40, 'spikes');
 
-    //  
+    //scale of the spikes
     spikesTwo.scale.setTo(.75, .25);
 
-    //  
+    //spikes can't be moved.
     spikesTwo.body.immovable = true;
 
+    //Invisible Spikes in the Ground to simulate being squished.
+    var spikesThree=spikes.create(0,game.world.height-10,'invisibleSpikes')
+    spikesThree.body.immovable=true;
+
+    var spikesFour=spikes.create(515,game.world.height-10,'invisibleSpikes')
+    spikesFour.body.immovable=true;
+
+
+    // Hidden to give the illusion that the flame is killing you.
     spikes.visible=false;
 
 
@@ -371,6 +384,7 @@ function update() {
     game.physics.arcade.overlap(player,shield, runFaster,null, this);
     game.physics.arcade.overlap(player,wing,jumpHigher,null,this);
     game.physics.arcade.overlap(player,stun,extendedWeapon,null,this);
+    game.physics.arcade.overlap(player,enemy,trumpKillsYou,null,this);
     game.physics.arcade.overlap(spikes, stun, killstun, null, this);
     game.physics.arcade.overlap(spikes, wing, killwing, null, this);
     game.physics.arcade.overlap(spikes, shield, killShield, null, this);
@@ -400,8 +414,8 @@ function update() {
 
         
     }
-    else if (cursors.right.isDown)
-    {
+    
+    else if (cursors.right.isDown) {
         //  Move to the right
         player.body.velocity.x = 200;
 
@@ -418,8 +432,7 @@ function update() {
         }
 
     }
-    else
-    {
+    else {
         //  Stand still
         player.animations.stop();
 
@@ -428,28 +441,33 @@ function update() {
     }
     
     //  Allow the player to jump if they are touching the ground.
-    if (cursors.up.isDown && player.body.touching.down && (hitPlatform || hitLedge))
-    {
-        player.body.velocity.y = -200;
+    if (cursors.up.isDown && player.body.touching.down && (hitPlatform || hitLedge)) {
+        
+        player.body.velocity.y = -250;
+        
         if (jumpHigherX) {
-            player.body.velocity.y = -400;
+            player.body.velocity.y = -425;
         }
 
     }
 
-    
-    if (fireButton.isDown)
-    {
+    // Allows player to go downwards.
+    else if (cursors.down.isDown) {
         
-        if (cursors.left.isDown)
-        {
+        player.body.velocity.y = 200;
+
+    }
+
+    
+    if (fireButton.isDown) {
+        
+        if (cursors.left.isDown) {
             player.body.velocity.x = -90;
             player.frame=17;
             weapon.fireAngle=-180;
             weapon.fire();
-
-            
         }
+        
         else if (cursors.right.isDown)
         {
             player.body.velocity.x = 90;
@@ -460,36 +478,29 @@ function update() {
         }
 
         if (stunGunWeapon) {
-            if (cursors.left.isDown)
-        {
-            player.body.velocity.x = -90;
-            player.frame=17;
-            weapon.fireAngle=-180;
-            weapon.bulletKillDistance = 40;
-            weapon.fire();
-
+            if (cursors.left.isDown) {
+                player.body.velocity.x = -90;
+                player.frame=17;
+                weapon.fireAngle=-180;
+                weapon.bulletKillDistance = 40;
+                weapon.fire();
             
+            }
+        
+            else if (cursors.right.isDown) {
+                player.body.velocity.x = 90;
+                player.frame=18;
+                weapon.fireAngle=0;
+                weapon.bulletKillDistance = 40;
+                weapon.bullets.visible=true;
+                weapon.fire();
 
-            
-        }
-        else if (cursors.right.isDown)
-        {
-            player.body.velocity.x = 90;
-            player.frame=18;
-            weapon.fireAngle=0;
-            weapon.bulletKillDistance = 40;
-            weapon.bullets.visible=true;
-            weapon.fire();
-
-        }
+            }
         }
     }
-    
-    
 
 
 }
-
 
 
 //stun, wing, Shield Functions
@@ -546,12 +557,17 @@ function platformMover (player,ledge) {
     
 }
 
+//player death handlers
 
 function playerDeath (player,spikes) {
     player.kill();
 }
 
 function playerDeathTwo (player,roofSpikes) {
+    player.kill();
+}
+
+function trumpKillsYou (player,enemy) {
     player.kill();
 }
 
