@@ -304,6 +304,8 @@ function update() {
           weapon.fireAngle=0;
       }
   }
+
+  // Function when you want to descend
   else if (cursors.down.isDown) {
 
         player.body.velocity.y = 200;
@@ -319,9 +321,9 @@ function update() {
   //  Allow the player to jump if they are touching the ground.
   if (cursors.up.isDown && player.body.touching.down && (hitPlatform || hitLedge))
   {
-      player.body.velocity.y = -200;
+      player.body.velocity.y = -250;
       if (jumpHigherX) {
-          player.body.velocity.y = -400;
+          player.body.velocity.y = -425;
       }
   }
 
