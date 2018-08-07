@@ -428,7 +428,6 @@ function update() {
       if(positionX < 775) { positionX += 5; }
       database.ref().update({ posX: positionX, facings: 'right', playerOneWA: 0 });
   }
-
   if (cursors.left.isDown && p2 === true)
   {
       if(positionXTwo > 0) { positionXTwo -= 5}
