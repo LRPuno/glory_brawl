@@ -4,6 +4,9 @@ function startGame() {
   game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 }
 
+//remove this when different states are needed, you can call startGame() to start the game
+startGame();
+
 var player, enemy, platforms, ledge, cursors, stun, wing, shield, spikes, roofSpikes, fire, fallingSpikes;
 var runFastX = false, jumpHigherX = false, stunGunWeapon = false;
 
@@ -11,18 +14,19 @@ var runFastX = false, jumpHigherX = false, stunGunWeapon = false;
 function preload() {
     game.load.image('sky', 'assets/sky2.png');
     game.load.image('ground', 'assets/platform2.png');
-    game.load.image('testGround','assets/platformX.png');
+    game.load.image('testGround','assets/platformY.png');
     game.load.image('star', 'assets/diamond.png');
     game.load.image('bullet', 'assets/bullets/bullet206.png');
     game.load.image('spikes', 'assets/spikes.png');
     game.load.image('invertedSpikes', 'assets/invertedSpikesTrue.png')
-    game.load.image('stun','assets/trueKnife.png');
+    game.load.image('stun','assets/stungun.png');
     game.load.image('wing','assets/wings.png');
-    game.load.image('shield','assets/shield.png');
+    game.load.image('shield','assets/shield2.png');
     game.load.image('fallingSpike',"assets/newSpikes.png");
     game.load.image('enemy','assets/trumpface.png');
     game.load.spritesheet('dude', 'assets/orangefight.png',47,50,19);
     game.load.spritesheet('fire','assets/spritefire.png',150,500);
+    game.load.image('invisibleSpikes','assets/invisibleFloorSpikes.png');
     //game.load.spritesheet('secondDude','assets/white.png',47,50,19);
 }
 
@@ -45,9 +49,11 @@ function create() {
   groundTwo.body.immovable = true;
 
   //MAJOR LEDGE (quantity: one)
-  var groundThree = platforms.create(200, 350, 'ground');
-  groundThree.body.immovable = true; //Only Immovable groundThree ATM
-  groundThree.body.velocity.setTo(50,50);
+  var randomNumber=Math.floor((Math.random() * 798) + 1);
+  var randomNumber2=Math.floor((Math.random() * 500) + 1);
+  var groundThree = platforms.create(randomNumber, randomNumber2, 'ground');
+  groundThree.body.immovable = true;
+  groundThree.body.velocity.setTo(70,60);
   groundThree.body.collideWorldBounds=true;
   groundThree.body.bounce.set(.5);
 
@@ -112,6 +118,12 @@ function create() {
   spikesTwo.scale.setTo(.75, .25);
   spikesTwo.body.immovable = true;
   spikes.visible=false;
+
+  //Invisible Spikes in the Ground to simulate being squished.
+  var spikesThree=spikes.create(0,game.world.height-10,'invisibleSpikes')
+  spikesThree.body.immovable=true;
+  var spikesFour=spikes.create(515,game.world.height-10,'invisibleSpikes')
+  spikesFour.body.immovable=true;
 
   // ROOF SPIKES
   roofSpikes=game.add.group();
@@ -263,6 +275,7 @@ function update() {
   game.physics.arcade.overlap(spikes, shield, deathTwo, null, this);
   game.physics.arcade.overlap(fallingSpikes, ledge, deathOne, null, this);
   game.physics.arcade.overlap(fallingSpikes, platforms, deathOne, null, this);
+  game.physics.arcade.overlap(player, enemy, deathOne, null, this);
 
   //  Reset the players velocity (movement)
   player.body.velocity.x = 0;
@@ -290,6 +303,11 @@ function update() {
           player.animations.play('right');
           weapon.fireAngle=0;
       }
+  }
+  else if (cursors.down.isDown) {
+
+        player.body.velocity.y = 200;
+
   }
   else
   {
