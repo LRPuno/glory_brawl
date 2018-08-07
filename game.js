@@ -9,15 +9,16 @@ function preload() {
     game.load.image('star', 'assets/diamond.png');
     game.load.image('bullet', 'assets/bullets/bullet206.png');
     game.load.image('spikes', 'assets/spikes.png');
-    game.load.image('invertedSpikes', 'assets/invertedSpikes.png')
+    game.load.image('invertedSpikes', 'assets/invertedSpikesTrue.png')
     game.load.image('stun','assets/trueKnife.png');
     game.load.image('wing','assets/wings.png');
     game.load.image('shield','assets/shield.png');
     game.load.image('fallingSpike',"assets/newSpikes.png");
+    game.load.image('enemy','assets/trumpface.png');
     game.load.spritesheet('dude', 'assets/orangefight.png',47,50,19);
     //game.load.spritesheet('secondDude','assets/white.png',47,50,19);
     game.load.spritesheet('fire','assets/spritefire.png',150,500);
-    game.load.spritesheet('enemy','assets/trumpface.png');
+    
 
 }
 
@@ -95,7 +96,6 @@ function create() {
 
 
 
-// This gets it movingplatform.body.velocity.setTo(200,200);// This makes the game world bounce-ableplatform.body.collideWorldBounds = true;// This sets the image bounce energy for the horizontal // and vertical vectors. "1" is 100% energy returnplatform.body.bounce.set(1); 
 
     //  We will enable physics for any object that is created in this group. Moving Ledges
     ledge = game.add.group();
@@ -104,40 +104,27 @@ function create() {
 
     game.physics.arcade.enable(ledge)
 
-    ledges=ledge.create(300,150,'testGround');
-    ledges.body.velocity.setTo(60,60);
-    ledges.body.collideWorldBounds=true;
-    ledges.body.bounce.set(.5);
+    //Ledges in loop for randomization.
+    for (var i=0;i<8;i++) {
+        var randomNumber=Math.floor((Math.random() * 798) + 1);
+        var randomNumber2=Math.floor((Math.random() * 500) + 1);
+        if (i<4) {
+        var randomNumber3=Math.floor((Math.random() * 60) + 1);
+        var randomNumber4=Math.floor((Math.random() * 60) + 1);
+        }
+        else if (i>=4) {
+            var randomNumber3=Math.floor((Math.random() * 60) - 120);
+            var randomNumber4=Math.floor((Math.random() * 60) - 120);
+        }
+        ledges=ledge.create(randomNumber,randomNumber2,'testGround');
+        ledges.body.velocity.setTo(randomNumber3,randomNumber4);
+        ledges.body.collideWorldBounds=true;
+        ledges.body.bounce.set(.5);
+    }
 
-    ledges=ledge.create(100,200,'testGround');
-    ledges.body.velocity.setTo(60,60);
-    ledges.body.collideWorldBounds=true;
-    ledges.body.bounce.set(.5);
 
-    ledges=ledge.create(60,300,'testGround');
-    ledges.body.velocity.setTo(60,60);
-    ledges.body.collideWorldBounds=true;
-    ledges.body.bounce.set(.5);
-
-    ledges=ledge.create(20,55,'testGround');
-    ledges.body.velocity.setTo(60,60);
-    ledges.body.collideWorldBounds=true;
-    ledges.body.bounce.set(.5);
-
-    ledges=ledge.create(150,120,'testGround');
-    ledges.body.velocity.setTo(60,60);
-    ledges.body.collideWorldBounds=true;
-    ledges.body.bounce.set(.5);
-
-    ledges=ledge.create(40,80,'testGround');
-    ledges.body.velocity.setTo(60,60);
-    ledges.body.collideWorldBounds=true;
-    ledges.body.bounce.set(.5);
-
-    ledges=ledge.create(90,40,'testGround');
-    ledges.body.velocity.setTo(60,60);
-    ledges.body.collideWorldBounds=true;
-    ledges.body.bounce.set(.5);
+    //  Our controls.
+    cursors = game.input.keyboard.createCursorKeys();
 
     // The player and its settings
     player = game.add.sprite(0, game.world.height - 140, 'dude');
@@ -195,35 +182,6 @@ function create() {
     invertedSpikes.scale.setTo(1,.25);
     invertedSpikes.body.immovable=true;
 
-    invertedSpikes=roofSpikes.create(120,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
-
-    invertedSpikes=roofSpikes.create(240,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
-
-    invertedSpikes=roofSpikes.create(360,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
-
-    invertedSpikes=roofSpikes.create(480,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
-
-    invertedSpikes=roofSpikes.create(600,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
-
-    invertedSpikes=roofSpikes.create(700,game.world.height-600,'invertedSpikes');
-    invertedSpikes.scale.setTo(1,.25);
-    invertedSpikes.body.immovable=true;
-
-
-
-
-    //  Our controls.
-    cursors = game.input.keyboard.createCursorKeys();
 
     // Weapon Creation
     //  Creates 30 bullets, using the 'bullet' graphic
@@ -269,17 +227,27 @@ function create() {
 
     // Trump Sprite
 
-    
-
-  
-    enemy=game.add.sprite(200,270,'enemy');
+    // One outside so a Trump Sprite exists at the beginning of the game.
+    enemy=game.add.group();
+    enemy.enableBody=true;
     game.physics.arcade.enable(enemy);
-    enemy.enableBody = true;
-    enemy.body.bounce.y = 1;// 0.7 + Math.random() * 0.2;
-    enemy.body.bounce.x = 1;
-    enemy.body.gravity.y=20;
-    enemy.body.collideWorldBounds = true;
-    enemy.body.velocity.x = 200;
+    var randomNumber=Math.floor((Math.random() * 700) + 1);
+    var trumpImage=enemy.create(randomNumber,game.world.height-600,'enemy');
+    trumpImage.body.bounce.y = 1;// 0.7 + Math.random() * 0.2;
+    trumpImage.body.bounce.x = 1;
+    trumpImage.body.gravity.y=20;
+    trumpImage.body.collideWorldBounds = true;
+    trumpImage.body.velocity.x = 200;
+
+    function trumpGenerator () {
+        var randomNumber=Math.floor((Math.random() * 700) + 1);
+        var trumpImage=enemy.create(randomNumber,game.world.height-600,'enemy');
+        trumpImage.body.bounce.y = 1;// 0.7 + Math.random() * 0.2;
+        trumpImage.body.bounce.x = 1;
+        trumpImage.body.gravity.y=20;
+        trumpImage.body.collideWorldBounds = true;
+        trumpImage.body.velocity.x = 200;
+    }
 
     
 
@@ -365,8 +333,10 @@ function create() {
   }
 
   //Timer for Item and Spike Generation
-  setInterval(itemGenerator,10000);
-  setInterval(spikesFalling,7000);
+  game.time.events.repeat(Phaser.Timer.SECOND * 10,15, itemGenerator, this);
+  game.time.events.repeat(Phaser.Timer.SECOND * 7,200, spikesFalling, this);
+  game.time.events.repeat(Phaser.Timer.SECOND * 15,2, trumpGenerator, this);
+  
 
     
 }
