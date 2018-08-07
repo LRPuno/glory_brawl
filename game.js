@@ -15,7 +15,7 @@ function preload() {
     game.load.image('shield','assets/shield.png');
     game.load.image('fallingSpike',"assets/newSpikes.png");
     game.load.spritesheet('dude', 'assets/orangefight.png',47,50,19);
-    //game.load.spritesheet('secondDude','assets/white.png',47,50,17);
+    //game.load.spritesheet('secondDude','assets/white.png',47,50,19);
     game.load.spritesheet('fire','assets/spritefire.png',150,500);
     game.load.spritesheet('enemy','assets/trumpface.png');
 
