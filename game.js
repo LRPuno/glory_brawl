@@ -1,14 +1,101 @@
+var player, player2, enemy, platforms, ledge, cursors, stun, wing, shield, spikes, roofSpikes, fire, fallingSpikes, userOut, userIn, positionX, positionX2, facing, facingTwo, jumpTimer, jumpTimerTwo, p1WeaponAngle, p2WeaponAngle;
+var runFastX = false, jumpHigherX = false, stunGunWeapon = false;
+
+//-------------------------------------------------------Firebase Initialization Module---------------------------------------------------------------
+
+var config = {
+  apiKey: "AIzaSyCo-BksCXLjbvyAkl462_8tpQeIVoRHyqk",
+  authDomain: "glory-brawl.firebaseapp.com",
+  databaseURL: "https://glory-brawl.firebaseio.com",
+  projectId: "glory-brawl",
+  storageBucket: "glory-brawl.appspot.com",
+  messagingSenderId: "293343815413"
+};
+
+firebase.initializeApp(config);
+
+var database = firebase.database();
+
+//--------------------------------------------------------Firebase Authorization Module----------------------------------------------------------------
+var auth = firebase.auth();
+var uid, p1, p2;
+
+auth.signInAnonymously().catch(function(error) {
+  // Handle Errors here.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  // ...
+});
+
+auth.onAuthStateChanged(function(user) {
+  if (user) {
+    // User is signed in.
+    var isAnonymous = user.isAnonymous;
+    uid = user.uid;
+
+    firebase.database().ref().once("value").then(function(snapshot) {
+      var data = snapshot;
+      if(data.child("playerOne").val() === "empty" || data.child("playerOne").val() === uid) { database.ref().update({ playerOne:uid }); p1 = true;}
+      else if(data.child("playerTwo").val() === "empty" || data.child("playerTwo").val() === uid) { database.ref().update({ playerTwo:uid }); p2 = true;}
+      else { alert("The room is full, SPECTATOR MODE"); }
+    });
+
+  } else {
+    // When User Signsout or closes window
+  }
+});
+
+//Server Initialization
+firebase.database().ref().once("value").then(function(snapshot) {
+
+  var temp = snapshot;
+  userIn = temp.child("numberOfUsers").val();
+  userOut = userIn;
+  userIn += 1;
+  //server default values
+  database.ref().update({
+    jumpTime: 0,
+    facings: 'left',
+    posX: 0,
+    playerOneWA: 0,
+    numberOfUsers: userIn,
+    posX2: 765,
+    facings2: 'left',
+    jumpTime2: 0,
+    playerTwoWA: -180
+  });
+});
+
+//caches database if it changes (faster loads for .once)
+database.ref().on("value", function(snapshot){
+});
+
+//main server update() to sync server values with client values
+var serverUpdate = setInterval(function() {
+  database.ref().once("value", function(snapshot) {
+    data = snapshot;
+    userIn = data.child("numberOfUsers").val();
+    //player1
+    positionX = data.child("posX").val();
+    facing = data.child("facings").val();
+    jumpTimer = data.child("jumpTime").val();
+    p1WeaponAngle = data.child("playerOneWA").val();
+
+    //player2
+    positionXTwo = data.child("posX2").val();
+    facingTwo = data.child("facings2").val();
+    jumpTimerTwo = data.child("jumpTime2").val();
+    p2WeaponAngle = data.child("playerTwoWA").val();
+  });
+}, 15);
+
+///////////////////////////////////////////////////////////////////////////////////////////////VARIABLE DECLARATIONS / PREGAME////////////////////////////////////////////////////////////////////////////////
+
 var game;
 
 function startGame() {
   game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 }
-
-//remove this when different states are needed, you can call startGame() to start the game
-startGame();
-
-var player, enemy, platforms, ledge, cursors, stun, wing, shield, spikes, roofSpikes, fire, fallingSpikes;
-var runFastX = false, jumpHigherX = false, stunGunWeapon = false;
 
 ////////////////////////////////////////////////////////////////PHASER 2 GAME (GLORY_BRAWL)////////////////////////////////////////////////////////////////
 function preload() {
@@ -27,7 +114,7 @@ function preload() {
     game.load.spritesheet('dude', 'assets/orangefight.png',47,50,19);
     game.load.spritesheet('fire','assets/spritefire.png',150,500);
     game.load.image('invisibleSpikes','assets/invisibleFloorSpikes.png');
-    //game.load.spritesheet('secondDude','assets/white.png',47,50,19);
+    game.load.spritesheet('secondDude','assets/whiteStab.png',47,50,19);
 }
 
 function create() {
@@ -94,13 +181,24 @@ function create() {
   // PLAYER 1 SETTINGS
   player = game.add.sprite(0, game.world.height - 140, 'dude');
   game.physics.arcade.enable(player); //enables physics for player 1
-  player.body.bounce.y = 0;
+  // player.body.bounce.y = 0;
   player.body.gravity.y = 200;
   player.body.collideWorldBounds = true;
 
   // PLAYER 1 - ANIMATIONS
   player.animations.add('left', [0,1,2,3,4,5,6,7], 10, true);
   player.animations.add('right', [9,10,11,12,13,14,15], 10, true);
+
+  // PLAYER 2 SETTINGS
+  player2 = game.add.sprite(800, game.world.height - 140, 'secondDude');
+  game.physics.arcade.enable(player2); //enables physics for player 2
+  // player2.body.bounce.y = 0;
+  player2.body.gravity.y = 200;
+  player2.body.collideWorldBounds = true;
+
+  // PLAYER 2 - ANIMATIONS
+  player2.animations.add('left', [0,1,2,3,4,5,6,7], 10, true);
+  player2.animations.add('right', [9,10,11,12,13,14,15], 10, true);
 
   //PIT OF FIRE (visual; non functional without Ground spikes)
   fire = game.add.group();
@@ -143,20 +241,34 @@ function create() {
   weapon.bulletAngleOffset = 0;
   weapon.fireAngle=0;
   weapon.bulletSpeed = 800;
-
   //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
   weapon.fireRate = 0;
-
   //  Tell the Weapon to track the 'player' Sprite, offset by 14px horizontally, 0 vertically
   weapon.trackSprite(player, 25, 25);
-
   // Give weapons physical properties
   weapon.enableBody=true;
   weapon.physicsBodyType= Phaser.Physics.ARCADE;
-
   fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-
   weapon.bullets.visible=false;
+
+  weapon2 = game.add.weapon(200, 'bullet');
+  game.physics.arcade.enable(weapon2);
+  //weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+  weapon2.bulletKillType = Phaser.Weapon.KILL_DISTANCE;
+  weapon2.bulletKillDistance = 27;
+  //  Because our bullet is drawn facing up, we need to offset its rotation:
+  weapon2.bulletAngleOffset = 0;
+  weapon2.fireAngle=0;
+  weapon2.bulletSpeed = 800;
+  //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
+  weapon2.fireRate = 0;
+  //  Tell the Weapon to track the 'player' Sprite, offset by 14px horizontally, 0 vertically
+  weapon2.trackSprite(player2, 25, 25);
+  // Give weapon2s physical properties
+  weapon2.enableBody=true;
+  weapon2.physicsBodyType= Phaser.Physics.ARCADE;
+  fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+  weapon2.bullets.visible=false;
 
   // Trump Sprite, One outside so a Trump Sprite exists at the beginning of the game.
 
@@ -244,9 +356,34 @@ function create() {
 
 function update() {
 
+  //user joins - game time resets (sync)
+  if(userOut !== userIn) {
+    userOut = userIn;
+    game.time.reset();
+  }
+
+  //Movement Update (Left - Right)
+  if(positionX !== player.body.x) {
+    player.body.x = positionX;
+    player.animations.play(facing);
+  } else {
+    player.animations.stop();
+  }
+
+  if(positionXTwo !== player2.body.x) {
+    player2.body.x = positionXTwo;
+    player2.animations.play(facingTwo);
+  } else {
+    player2.animations.stop();
+  }
+
+  if(p2WeaponAngle !== weapon2.fireAngle) { weapon2.fireAngle = p2WeaponAngle; }
+
   //  Collide the player and the stars with the platforms
   var hitPlatform = game.physics.arcade.collide(player, platforms);
+  var hitPlatform2 = game.physics.arcade.collide(player2, platforms);
   var hitLedge=game.physics.arcade.collide(player,ledge, platformMover);
+  var hitLedge2 = game.physics.arcade.collide(player2, ledge, platformMover);
   game.physics.arcade.collide(stun, ledge);
   //game.physics.arcade.collide(platforms, platforms);
   game.physics.arcade.collide(wing, ledge);
@@ -278,43 +415,64 @@ function update() {
   game.physics.arcade.overlap(player, enemy, deathOne, null, this);
 
   //  Reset the players velocity (movement)
-  player.body.velocity.x = 0;
+  // player.body.velocity.x = 0;
 
-  if (cursors.left.isDown)
+  //Client Movement Input to Server (Firebase)
+  if (cursors.left.isDown && p1 === true)
   {
-      player.body.velocity.x = -200;
-      player.animations.play('left');
-      weapon.fireAngle=-180;
-
-      if (runFastX) {
-          player.body.velocity.x = -400;
-          player.animations.play('left');
-          weapon.fireAngle=-180;
-      }
+      if(positionX > 0) { positionX -= 5}
+      database.ref().update({ posX: positionX, facings: 'left', playerOneWA: -180 });
   }
-  else if (cursors.right.isDown)
+  else if (cursors.right.isDown && p1 === true)
   {
-      player.body.velocity.x = 200;
-      player.animations.play('right');
-      weapon.fireAngle=0;
-
-      if (runFastX) {
-          player.body.velocity.x = 400;
-          player.animations.play('right');
-          weapon.fireAngle=0;
-      }
+      if(positionX < 775) { positionX += 5; }
+      database.ref().update({ posX: positionX, facings: 'right', playerOneWA: 0 });
   }
-  else if (cursors.down.isDown) {
 
-        player.body.velocity.y = 200;
-
-  }
-  else
+  if (cursors.left.isDown && p2 === true)
   {
-      //  Stand still
-      player.animations.stop();
-      player.frame = 8;
+      if(positionXTwo > 0) { positionXTwo -= 5}
+      database.ref().update({ posX2: positionXTwo, facings2: 'left', playerTwoWA: -180 });
   }
+  else if (cursors.right.isDown && p2 === true)
+  {
+      if(positionXTwo < 775) { positionXTwo += 5; }
+      database.ref().update({ posX2: positionXTwo, facings2: 'right', playerTwoWA: 0 });
+  }
+
+  // if (cursors.left.isDown)
+  // {
+  //     player.body.velocity.x = -200;
+  //     player.animations.play('left');
+  //     weapon.fireAngle=-180;
+  //
+  //     if (runFastX) {
+  //         player.body.velocity.x = -400;
+  //         player.animations.play('left');
+  //         weapon.fireAngle=-180;
+  //     }
+  // }
+  // else if (cursors.right.isDown)
+  // {
+  //     player.body.velocity.x = 200;
+  //     player.animations.play('right');
+  //     weapon.fireAngle=0;
+  //
+  //     if (runFastX) {
+  //         player.body.velocity.x = 400;
+  //         player.animations.play('right');
+  //         weapon.fireAngle=0;
+  //     }
+  // }
+  // else if (cursors.down.isDown) {
+  //     player.body.velocity.y = 200;
+  // }
+  // else
+  // {
+  //     //  Stand still
+  //     player.animations.stop();
+  //     player.frame = 8;
+  // }
 
   //  Allow the player to jump if they are touching the ground.
   if (cursors.up.isDown && player.body.touching.down && (hitPlatform || hitLedge))
@@ -324,7 +482,6 @@ function update() {
           player.body.velocity.y = -400;
       }
   }
-
 
   if (fireButton.isDown)
   {
