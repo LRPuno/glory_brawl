@@ -1,5 +1,7 @@
-var player, player2, enemy, platforms, ledge, cursors, stun, wing, shield, spikes, roofSpikes, fire, fallingSpikes, userOut, userIn, positionX, positionX2, facing, facingTwo, jumpTimer, jumpTimerTwo, p1WeaponAngle, p2WeaponAngle;
+var player, player2, enemy, platforms, ledge, cursors, stun, wing, shield, spikes, roofSpikes, fire, fallingSpikes, userOut, userIn, facing, facingTwo, jumpTimer, jumpTimerTwo, p1WeaponAngle, p2WeaponAngle;
 var runFastX = false, jumpHigherX = false, stunGunWeapon = false;
+var positionX = 45; positionXTwo = 765;
+var positionY = 0; positionYTwo = 0;
 
 //-------------------------------------------------------Firebase Initialization Module---------------------------------------------------------------
 
@@ -57,13 +59,16 @@ firebase.database().ref().once("value").then(function(snapshot) {
     jumpTime: 0,
     facings: 'left',
     posX: 0,
+    posY: 0,
     playerOneWA: 0,
     numberOfUsers: userIn,
-    posX2: 765,
+    posX2: 0,
+    posY2: 0,
     facings2: 'left',
     jumpTime2: 0,
     playerTwoWA: -180
   });
+
 });
 
 //caches database if it changes (faster loads for .once)
@@ -77,12 +82,14 @@ var serverUpdate = setInterval(function() {
     userIn = data.child("numberOfUsers").val();
     //player1
     positionX = data.child("posX").val();
+    positionY = data.child("posY").val();
     facing = data.child("facings").val();
     jumpTimer = data.child("jumpTime").val();
     p1WeaponAngle = data.child("playerOneWA").val();
 
     //player2
     positionXTwo = data.child("posX2").val();
+    positionYTwo = data.child("posY2").val();
     facingTwo = data.child("facings2").val();
     jumpTimerTwo = data.child("jumpTime2").val();
     p2WeaponAngle = data.child("playerTwoWA").val();
@@ -96,6 +103,8 @@ var game;
 function startGame() {
   game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 }
+
+startGame();
 
 ////////////////////////////////////////////////////////////////PHASER 2 GAME (GLORY_BRAWL)////////////////////////////////////////////////////////////////
 function preload() {
@@ -136,9 +145,10 @@ function create() {
   groundTwo.body.immovable = true;
 
   //MAJOR LEDGE (quantity: one)
-  var randomNumber=Math.floor((Math.random() * 798) + 1);
-  var randomNumber2=Math.floor((Math.random() * 500) + 1);
-  var groundThree = platforms.create(randomNumber, randomNumber2, 'ground');
+  // var randomNumber=Math.floor((Math.random() * 798) + 1);
+  // var randomNumber2=Math.floor((Math.random() * 500) + 1);
+  // var groundThree = platforms.create(randomNumber, randomNumber2, 'ground');
+  var groundThree = platforms.create(120, 300, 'ground');
   groundThree.body.immovable = true;
   groundThree.body.velocity.setTo(70,60);
   groundThree.body.collideWorldBounds=true;
@@ -158,28 +168,45 @@ function create() {
   game.physics.arcade.enable(ledge)
 
   //Ledges in loop for randomization.
-  for (var i=0;i<8;i++) {
-    var randomNumber=Math.floor((Math.random() * 798) + 1);
-    var randomNumber2=Math.floor((Math.random() * 500) + 1);
-    if (i<4) {
-      var randomNumber3=Math.floor((Math.random() * 60) + 1);
-      var randomNumber4=Math.floor((Math.random() * 60) + 1);
-    }
-    else if (i>=4) {
-      var randomNumber3=Math.floor((Math.random() * 60) - 120);
-      var randomNumber4=Math.floor((Math.random() * 60) - 120);
-    }
-      ledges=ledge.create(randomNumber,randomNumber2,'testGround');
-      ledges.body.velocity.setTo(randomNumber3,randomNumber4);
-      ledges.body.collideWorldBounds=true;
-      ledges.body.bounce.set(.5);
-  }
+  // for (var i=0;i<8;i++) {
+  //   var randomNumber=Math.floor((Math.random() * 798) + 1);
+  //   var randomNumber2=Math.floor((Math.random() * 500) + 1);
+  //   if (i<4) {
+  //     var randomNumber3=Math.floor((Math.random() * 60) + 1);
+  //     var randomNumber4=Math.floor((Math.random() * 60) + 1);
+  //   }
+  //   else if (i>=4) {
+  //     var randomNumber3=Math.floor((Math.random() * 60) - 120);
+  //     var randomNumber4=Math.floor((Math.random() * 60) - 120);
+  //   }
+  //     ledges=ledge.create(randomNumber,randomNumber2,'testGround');
+  //     ledges.body.velocity.setTo(randomNumber3,randomNumber4);
+  //     ledges.body.collideWorldBounds=true;
+  //     ledges.body.bounce.set(.5);
+  // }
+
+  // for (var i=0;i<8;i++) {
+  //   var randomNumber=Math.floor((Math.random() * 798) + 1);
+  //   var randomNumber2=Math.floor((Math.random() * 500) + 1);
+  //   if (i<4) {
+  //     var randomNumber3=Math.floor((Math.random() * 60) + 1);
+  //     var randomNumber4=Math.floor((Math.random() * 60) + 1);
+  //   }
+  //   else if (i>=4) {
+  //     var randomNumber3=Math.floor((Math.random() * 60) - 120);
+  //     var randomNumber4=Math.floor((Math.random() * 60) - 120);
+  //   }
+  //     ledges=ledge.create(randomNumber,randomNumber2,'testGround');
+  //     ledges.body.velocity.setTo(randomNumber3,randomNumber4);
+  //     ledges.body.collideWorldBounds=true;
+  //     ledges.body.bounce.set(.5);
+  // }
 
   //  Our controls.
   cursors = game.input.keyboard.createCursorKeys();
 
   // PLAYER 1 SETTINGS
-  player = game.add.sprite(0, game.world.height - 140, 'dude');
+  player = game.add.sprite(45, game.world.height - 140, 'dude');
   game.physics.arcade.enable(player); //enables physics for player 1
   // player.body.bounce.y = 0;
   player.body.gravity.y = 200;
@@ -190,7 +217,7 @@ function create() {
   player.animations.add('right', [9,10,11,12,13,14,15], 10, true);
 
   // PLAYER 2 SETTINGS
-  player2 = game.add.sprite(800, game.world.height - 140, 'secondDude');
+  player2 = game.add.sprite(755, game.world.height - 140, 'secondDude');
   game.physics.arcade.enable(player2); //enables physics for player 2
   // player2.body.bounce.y = 0;
   player2.body.gravity.y = 200;
@@ -276,7 +303,7 @@ function create() {
   enemy.enableBody=true;
   game.physics.arcade.enable(enemy);
   var randomNumber=Math.floor((Math.random() * 700) + 1);
-  var trumpImage=enemy.create(randomNumber,game.world.height-600,'enemy');
+  var trumpImage=enemy.create(400,game.world.height-600,'enemy');
   trumpImage.body.bounce.y = 1;// 0.7 + Math.random() * 0.2;
   trumpImage.body.bounce.x = 1;
   trumpImage.body.gravity.y=20;
@@ -284,9 +311,13 @@ function create() {
   trumpImage.body.velocity.x = 200;
 
   //Timer for Item and Spike Generation
-  game.time.events.repeat(Phaser.Timer.SECOND * 10,15, itemGenerator, this);
-  game.time.events.repeat(Phaser.Timer.SECOND * 7,200, spikesFalling, this);
-  game.time.events.repeat(Phaser.Timer.SECOND * 15,2, trumpGenerator, this);
+  // game.time.events.repeat(Phaser.Timer.SECOND * 10,15, itemGenerator, this);
+  // game.time.events.repeat(Phaser.Timer.SECOND * 7,200, spikesFalling, this);
+  // game.time.events.repeat(Phaser.Timer.SECOND * 15,2, trumpGenerator, this);
+
+  // setInterval(itemGenerator, 10000);
+  // setInterval(spikesFalling, 7000);
+  // setInterval(trumpGenerator, 15000);
 
   function trumpGenerator () {
     var randomNumber=Math.floor((Math.random() * 700) + 1);
@@ -352,32 +383,11 @@ function create() {
       spikeFall.body.gravity.y = 300;
     }
   }
+
+  console.log(player.body.x);
 }
 
 function update() {
-
-  //user joins - game time resets (sync)
-  if(userOut !== userIn) {
-    userOut = userIn;
-    game.time.reset();
-  }
-
-  //Movement Update (Left - Right)
-  if(positionX !== player.body.x) {
-    player.body.x = positionX;
-    player.animations.play(facing);
-  } else {
-    player.animations.stop();
-  }
-
-  if(positionXTwo !== player2.body.x) {
-    player2.body.x = positionXTwo;
-    player2.animations.play(facingTwo);
-  } else {
-    player2.animations.stop();
-  }
-
-  if(p2WeaponAngle !== weapon2.fireAngle) { weapon2.fireAngle = p2WeaponAngle; }
 
   //  Collide the player and the stars with the platforms
   var hitPlatform = game.physics.arcade.collide(player, platforms);
@@ -414,30 +424,101 @@ function update() {
   game.physics.arcade.overlap(fallingSpikes, platforms, deathOne, null, this);
   game.physics.arcade.overlap(player, enemy, deathOne, null, this);
 
+  //user joins - game time resets (sync)
+  if(userOut !== userIn) {
+    userOut = userIn;
+    game.time.reset();
+  }
+
+  //Movement Update (Left - Right)
+  if(positionX !== player.body.x) {
+    player.body.velocity.x = positionX;
+    player.animations.play(facing);
+  } else {
+    player.animations.stop();
+  }
+
+  if(positionXTwo !== player2.body.x) {
+    player2.body.velocity.x = positionXTwo;
+    player2.animations.play(facingTwo);
+  } else {
+    player2.animations.stop();
+  }
+
+  if(positionY !== player.body.velocity.y && game.time.totalElapsedSeconds() < jumpTimer)
+  {
+    player.body.velocity.y = positionY;
+  }
+
+  if(positionYTwo !== player2.body.velocity.y && game.time.totalElapsedSeconds() < jumpTimerTwo)
+  {
+    player2.body.velocity.y = positionYTwo;
+  }
+
+  if(p1WeaponAngle !== weapon.fireAngle) { weapon.fireAngle = p1WeaponAngle; }
+  if(p2WeaponAngle !== weapon2.fireAngle) { weapon2.fireAngle = p2WeaponAngle; }
+
   //  Reset the players velocity (movement)
   // player.body.velocity.x = 0;
 
   //Client Movement Input to Server (Firebase)
   if (cursors.left.isDown && p1 === true)
   {
-      if(positionX > 0) { positionX -= 5}
+      // if(positionX > 0) { positionX -= 5}
+      if(positionX > 0) { positionX = -250; }
       database.ref().update({ posX: positionX, facings: 'left', playerOneWA: -180 });
   }
   else if (cursors.right.isDown && p1 === true)
   {
-      if(positionX < 775) { positionX += 5; }
+      // if(positionX < 775) { positionX += 5; }
+      if(positionX < 775) { positionX = 250; }
       database.ref().update({ posX: positionX, facings: 'right', playerOneWA: 0 });
   }
+  else if( p1 === true) {
+      positionX = 0;
+      database.ref().update({ posX: positionX });
+  }
+
   if (cursors.left.isDown && p2 === true)
   {
-      if(positionXTwo > 0) { positionXTwo -= 5}
+      // if(positionXTwo > 0) { positionXTwo -= 5}
+      if(positionXTwo > 0) { positionXTwo = -250; }
       database.ref().update({ posX2: positionXTwo, facings2: 'left', playerTwoWA: -180 });
   }
   else if (cursors.right.isDown && p2 === true)
   {
-      if(positionXTwo < 775) { positionXTwo += 5; }
+      // if(positionXTwo < 775) { positionXTwo += 5; }
+      if(positionXTwo < 775) { positionXTwo = 250; }
       database.ref().update({ posX2: positionXTwo, facings2: 'right', playerTwoWA: 0 });
   }
+  else if (p2 === true) {
+      positionXTwo = 0;
+      database.ref().update({ posX2: positionXTwo });
+  }
+
+  //  Allow the player to jump if they are touching the ground.
+  if (cursors.up.isDown && player.body.touching.down && p1 === true && (hitPlatform || hitLedge))
+  {
+      positionY = -200;
+      jumpTimer = game.time.totalElapsedSeconds() + 0.5;
+      database.ref().update({ posY: positionY, jumpTime: jumpTimer });
+      // player.body.velocity.y = -200;
+      // if (jumpHigherX) {
+      //     player.body.velocity.y = -400;
+      // }
+  }
+
+  if (cursors.up.isDown && player2.body.touching.down && p2 === true && (hitPlatform2 || hitLedge2))
+  {
+      positionY2 = -200;
+      jumpTimerTwo = game.time.totalElapsedSeconds() + 0.5;
+      database.ref().update({ posY2: positionYTwo, jumpTime2: jumpTimerTwo });
+      // player.body.velocity.y = -200;
+      // if (jumpHigherX) {
+      //     player.body.velocity.y = -400;
+      // }
+  }
+
 
   // if (cursors.left.isDown)
   // {
@@ -472,15 +553,6 @@ function update() {
   //     player.animations.stop();
   //     player.frame = 8;
   // }
-
-  //  Allow the player to jump if they are touching the ground.
-  if (cursors.up.isDown && player.body.touching.down && (hitPlatform || hitLedge))
-  {
-      player.body.velocity.y = -200;
-      if (jumpHigherX) {
-          player.body.velocity.y = -400;
-      }
-  }
 
   if (fireButton.isDown)
   {
