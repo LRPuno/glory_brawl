@@ -1,0 +1,11 @@
+body {  background: #000000;  width:100%}
+
+h1{  color: #ffffff;  text-align: center;}
+
+/*center canvas*/
+
+canvas {    margin: auto;   }
+
+#zip {     top: 50%;     left: 200px;     position: absolute;}
+
+#container {     top: 5%;     left: 100px;     position: absolute;}
