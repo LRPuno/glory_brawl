@@ -9,3 +9,18 @@ canvas {    margin: auto;   }
 #zip {     top: 50%;     left: 200px;     position: absolute;}
 
 #container {     top: 5%;     left: 100px;     position: absolute;}
+
+
+#loading {
+  margin: auto;
+  width:800px;
+  height:600px;
+  border-style:solid;
+  border-color:black;
+  border-width:2px;
+  background-color:white;
+  color:black;
+  font-size:36px;
+  text-align:center;
+  vertical-align: middle;
+}

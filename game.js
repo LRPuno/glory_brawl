@@ -131,13 +131,12 @@ var serverUpdate = setInterval(function() {
 
 }, 20);
 
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////VARIABLE DECLARATIONS / PREGAME////////////////////////////////////////////////////////////////////////////////
 
 var game;
 
 function startGame() {
+  $('#loading').css("display", "none");
   game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
   tempTimerOn = false;
   database.ref().update({ timer: 500, playerOne: 'empty', playerTwo: 'empty' });
