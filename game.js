@@ -1,6 +1,6 @@
 var player, player2, enemy, platforms, ledge, cursors, stun, wing, shield, spikes, roofSpikes, fire, fallingSpikes, userOut, userIn, facing, facingTwo, jumpTimer, jumpTimerTwo, p1WeaponAngle, p2WeaponAngle;
-var runOne = false, jumpOne = false, weaponOne = false;
-var runTwo = false, jumpTwo = false, weaponTwo = false;
+var runOne = false, jumpOne = false, weaponOne = false, weaponOneOn = 0;
+var runTwo = false, jumpTwo = false, weaponTwo = false, weaponTwoOn = 0;
 var positionX = 45; positionXTwo = 765;
 var positionY = 0; positionYTwo = 0;
 //-------------------------------------------------------Firebase Initialization Module---------------------------------------------------------------
@@ -64,6 +64,7 @@ firebase.database().ref().once("value").then(function(snapshot) {
     run1: false,
     jump1: false,
     weapon1: false,
+    weapon1On: 0,
     facings: 'right',
     posX: 45,
     posY: 0,
@@ -76,6 +77,7 @@ firebase.database().ref().once("value").then(function(snapshot) {
     run2: false,
     jump2: false,
     weapon2: false,
+    weapon2On: 0,
     playerTwoWA: -180
   });
 
@@ -106,6 +108,7 @@ var serverUpdate = setInterval(function() {
     runOne = data.child("run1").val();
     jumpOne = data.child("jump1").val();
     weaponOne = data.child("weapon1").val();
+    weaponOneOn = data.child("weapon1On").val();
 
     //player2
     positionXTwo = data.child("posX2").val();
@@ -117,6 +120,7 @@ var serverUpdate = setInterval(function() {
     runTwo = data.child("run2").val();
     jumpTwo = data.child("jump2").val();
     weaponTwo = data.child("weapon2").val();
+    weaponTwoOn = data.child("weapon2On").val();
   });
 
   if(tempTimerOn === true && p1 === true) {
@@ -474,6 +478,34 @@ function update() {
 
   if(p1WeaponAngle !== weapon.fireAngle) { weapon.fireAngle = p1WeaponAngle; }
 
+  if(weaponOneOn === 1) {
+    player.frame = 17;
+    weapon.fire();
+  }
+  else if (weaponOneOn === 2) {
+    player.frame = 18;
+    weapon.fire();
+  }
+
+  if(weaponOne) {
+    weapon.bulletKillDistance = 40;
+    weapon.bullets.visible=true;
+  }
+
+  if(weaponTwoOn === 1) {
+    player2.frame = 17;
+    weapon2.fire();
+  }
+  else if (weaponTwoOn === 2) {
+    player2.frame = 18;
+    weapon2.fire();
+  }
+
+  if(weaponTwo) {
+    weapon2.bulletKillDistance = 40;
+    weapon2.bullets.visible=true;
+  }
+
   //player 2 controls (left-right, animations, jump, weapon angle)
   if(positionXTwo !== player2.body.x) { player2.body.x = positionXTwo; player2.animations.play(facingTwo); }
   else if (player2.body.x === positionXTwo) { player2.animations.stop(); }
@@ -493,6 +525,11 @@ function update() {
         }
         database.ref().update({ posX: positionX, facings: 'left', playerOneWA: -180 });
       }
+      if(fireButton.isDown) {
+        database.ref().update({ weapon1On: 1 });
+      } else if (!fireButton.isDown) {
+        database.ref().update({ weapon1On: 0 });
+      }
   }
   else if (cursors.right.isDown && p1 === true)
   {
@@ -503,6 +540,11 @@ function update() {
           positionX += 5;
         }
         database.ref().update({ posX: positionX, facings: 'right', playerOneWA: 0 });
+      }
+      if(fireButton.isDown) {
+        database.ref().update({ weapon1On: 2 });
+      } else if (!fireButton.isDown) {
+        database.ref().update({ weapon1On: 0 });
       }
   }
 
@@ -516,6 +558,11 @@ function update() {
         }
         database.ref().update({ posX2: positionXTwo, facings2: 'left', playerTwoWA: -180 });
       }
+      if(fireButton.isDown) {
+        database.ref().update({ weapon2On: 1 });
+      } else if (!fireButton.isDown) {
+        database.ref().update({ weapon2On: 0 });
+      }
   }
   else if (cursors.right.isDown && p2 === true)
   {
@@ -527,44 +574,11 @@ function update() {
         }
         database.ref().update({ posX2: positionXTwo, facings2: 'right', playerTwoWA: 0 });
       }
-  }
-
-  if (fireButton.isDown)
-  {
-    if (cursors.left.isDown)
-    {
-      player.body.velocity.x = -90;
-      player.frame=17;
-      weapon.fireAngle=-180;
-      weapon.fire();
-    }
-    else if (cursors.right.isDown)
-    {
-      player.body.velocity.x = 90;
-      player.frame=18;
-      weapon.fireAngle=0;
-      weapon.fire();
-    }
-    if (weaponOne)
-    {
-      if (cursors.left.isDown)
-      {
-        player.body.velocity.x = -90;
-        player.frame=17;
-        weapon.fireAngle=-180;
-        weapon.bulletKillDistance = 40;
-        weapon.fire();
+      if(fireButton.isDown) {
+        database.ref().update({ weapon2On: 2 });
+      } else if (!fireButton.isDown) {
+        database.ref().update({ weapon2On: 0 });
       }
-      else if (cursors.right.isDown)
-      {
-        player.body.velocity.x = 90;
-        player.frame=18;
-        weapon.fireAngle=0;
-        weapon.bulletKillDistance = 40;
-        weapon.bullets.visible=true;
-        weapon.fire();
-      }
-    }
   }
 
   //  Allow the player to jump if they are touching the ground.
