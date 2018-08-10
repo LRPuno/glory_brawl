@@ -55,6 +55,8 @@ brawl.state3.prototype= {
             if(a.child(b).val() < total ) {
               firebase.database().ref('leaderboards').update({ [b]: total })
             }
+          game.state.start('start4');
+          forceGameStart4=true;
           });
 
           $('#login').val("");
@@ -98,10 +100,12 @@ brawl.state3.prototype= {
       {
         location.reload();
       }
-      else if (game.input.keyboard.isDown(Phaser.Keyboard.ENTER))
+      else if (game.input.keyboard.isDown(Phaser.Keyboard.ENTER)||(forceGameStart4))
       {
         game.state.start('state4');
       }
+
+      
 
 
     }

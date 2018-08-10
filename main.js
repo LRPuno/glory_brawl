@@ -6,6 +6,8 @@ var timer;
 var smack;
 var music;
 var music1;
+//Forces the next state of the game with a button that is not coded in phaser.
+var forceGameStart4=false;
 var trumpQuotes;
 var total = 0;
 var highestTotalLocal=0;
