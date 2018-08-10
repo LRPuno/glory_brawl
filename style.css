@@ -1,5 +1,8 @@
 body {
-  background: #000000;  width:100%
+  background: #000000;
+  width:100%;
+  position: fixed;
+  overflow-y: scroll;
 }
 
 h1{  color: #ffffff;  text-align: center;}
