@@ -1,11 +1,37 @@
-body {  background: #000000;  width:100%}
+body {
+  background: #000000;  width:100%
+}
 
 h1{  color: #ffffff;  text-align: center;}
-
-/*center canvas*/
 
 canvas {    margin: auto;   }
 
 #zip {     top: 50%;     left: 200px;     position: absolute;}
 
 #container {     top: 5%;     left: 100px;     position: absolute;}
+
+form {
+  height: 1px;
+}
+#login {
+  display:none;
+  height:4vh;
+  width:10vw;
+  /* display: inline; */
+  position:relative;
+  left:36vw;
+  top: 16vh;
+  font-size:1vw;
+}
+
+#button {
+  display:none;
+  position: relative;
+  /* display: inline; */
+  height:4vh;
+  width:4vw;
+  left:36.5vw;
+  top: 16vh;
+  font-size:1vw;
+  background-color:green;
+}
