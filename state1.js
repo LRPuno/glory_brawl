@@ -17,7 +17,15 @@ brawl.state1.prototype= {
         //Adding Cool Looking Text
         text = game.add.text(40, 79, '', { font: "15px Arial", fill: "#19de65" });
         nextLine();
-        addChangeStateEventListeners();
+        
+        //Skip Written Already.
+        var text2 = game.add.text(600,200,"Press Spacebar to Skip/Play")
+
+        //	Font style
+        text2.font = 'Arial';
+        text2.fontSize = 15;
+        text2.fill= "#19de65";
+        //text2.fontWeight = 'bold';
 
         /*
         //Loop Music
@@ -31,6 +39,10 @@ brawl.state1.prototype= {
             musicOne.stop(); 
         }
         */
+       if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
+      {
+        game.state.start('state2');
+      }
     }
 };
 
