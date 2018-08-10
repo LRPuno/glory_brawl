@@ -45,18 +45,6 @@ brawl.state3.prototype= {
         // text.addColor('#ff00ff', 9);
         // text.addColor('#43d637', 13);
 
-        var name = game.add.text(260, 100, 'Name: _  _  _');
-        name.anchor.set(0.1);
-        name.align = 'center';
-
-        //	Font style
-        name.font = 'Arial Black';
-        name.fontSize = 20;
-        name.fill= "#19de65";
-        name.fontWeight = 'bold';
-
-        var counter = 0;
-
         $('#login, #button').css("display", "inline");
 
         $('#button').on("click", function(event) {
