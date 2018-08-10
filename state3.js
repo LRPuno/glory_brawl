@@ -19,7 +19,7 @@ brawl.state3.prototype= {
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         console.log("state3");
 
-        text = game.add.text(350, 200, 'Spacebar to Play Again');
+        text = game.add.text(365, 175, 'Press Spacebar to Play Again');
 
         //	Center align
         text.anchor.set(0.5);
@@ -31,14 +31,26 @@ brawl.state3.prototype= {
         text.fill= "#19de65";
         text.fontWeight = 'bold';
 
-        text = game.add.text(350, 220, 'Press ENTER to see High Score Leaderboard!');
+        text = game.add.text(330, 220, 'Press L to see High Score Leaderboard!');
         text.anchor.set(0.295);
         text.align = 'center';
 
         //	Font style
         text.font = 'Arial Black';
         text.fontSize = 20;
-        text.fill= "#19de65";
+        text.fill= "#0000ff";
+        text.fontWeight = 'bold';
+
+        // Score
+
+        text = game.add.text(260, 330, "Your Score: "+total);
+        text.anchor.set(0.295);
+        text.align = 'center';
+
+        //	Font style
+        text.font = 'Arial Black';
+        text.fontSize = 20;
+        text.fill= "#000000";
         text.fontWeight = 'bold';
 
         //  And now we'll color in some of the letters
@@ -62,6 +74,8 @@ brawl.state3.prototype= {
           $('#login').val("");
           $('#login, #button').css("display", "none");
         });
+
+        
 
         var queryURL = "https://api.whatdoestrumpthink.com/api/v1/quotes/random";
         console.log(queryURL);
@@ -100,7 +114,7 @@ brawl.state3.prototype= {
       {
         location.reload();
       }
-      else if (game.input.keyboard.isDown(Phaser.Keyboard.ENTER)||(forceGameStart4))
+      else if (game.input.keyboard.isDown(Phaser.Keyboard.L)||(forceGameStart4))
       {
         game.state.start('state4');
       }

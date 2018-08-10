@@ -18,10 +18,10 @@ var content = [
   "He has seized all power and killed all of his enemies.",
   "In an attempt to calm down the masses.",
   "Trump created a game show.",
-  "A game show that features gladiator deathmatches live from prison.",
+  "A game show that uses prisoners as contestants",
+  "You've been selected as a contestant.",
+  "Arrow Keys to Move.",
   "Welcome to Glory Brawl.",
-  "Press 2 to Play."
-
 ];
 
 var line = [];
@@ -86,7 +86,7 @@ game.state.start('state1');
 //game.state.start('state4');
 ////////////////////////////////////////////////////////////////PHASER 2 GAME (GLORY_BRAWL)////////////////////////////////////////////////////////////////
 
-
+/*
 //Changing Game States Where you Press Numbers
 function changeState (i,stateNum) {
   console.log(i);
@@ -100,3 +100,4 @@ function addKeyCallback(key,fn,args) {
 function addChangeStateEventListeners() {
   addKeyCallback(Phaser.Keyboard.TWO, changeState,2);
 }
+*/

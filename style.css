@@ -18,12 +18,12 @@ form {
 }
 #login {
   display:none;
-  height:4vh;
+  /*height:4vh;*/
   width:10vw;
   /* display: inline; */
   position:relative;
-  left:36vw;
-  top: 16vh;
+  left:32vw;
+  top: 16.80vh;
   font-size:1vw;
 }
 
@@ -31,10 +31,12 @@ form {
   display:none;
   position: relative;
   /* display: inline; */
+  /*
   height:4vh;
   width:4vw;
-  left:36.5vw;
-  top: 16vh;
   font-size:1vw;
-  background-color:green;
+  */
+  left:33vw;
+  top: 16.5vh;
+  background-color:red;
 }
